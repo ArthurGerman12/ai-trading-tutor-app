@@ -13,38 +13,48 @@ const MetricsCard: React.FC<MetricsCardProps> = ({ title, metrics, type }) => {
   };
 
   const getColorClass = (value: number, metric: string): string => {
-    if (metric === 'total_return') return value > 0 ? 'positive' : 'negative';
-    if (metric === 'max_drawdown') return 'negative';
-    if (metric === 'sharpe_ratio') return value > 1 ? 'positive' : value > 0 ? 'neutral' : 'negative';
-    return '';
+    if (metric === 'total_return') return value > 0 ? 'text-green-600' : 'text-red-600';
+    if (metric === 'max_drawdown') return 'text-red-600';
+    if (metric === 'sharpe_ratio') return value > 1 ? 'text-green-600' : value > 0 ? 'text-yellow-600' : 'text-red-600';
+    return 'text-gray-900';
   };
 
+  const borderColor = type === 'strategy' ? 'border-blue-600' : 'border-green-600';
+  const accentBg = type === 'strategy' ? 'bg-blue-600' : 'bg-green-600';
+
   return (
-    <div className={`metrics-card ${type}`}>
-      <h3>{title}</h3>
-      <div className="metrics-list">
-        <div className="metric-item">
-          <span className="metric-label">Total Return</span>
-          <span className={`metric-value ${getColorClass(metrics.total_return, 'total_return')}`}>
+    <div className={`rounded-xl border-2 ${borderColor} overflow-hidden`}>
+      {/* Header */}
+      <div className={`${accentBg} px-5 py-3`}>
+        <h3 className="text-white font-bold text-base">{title}</h3>
+      </div>
+
+      {/* Metrics */}
+      <div className="divide-y divide-gray-100">
+        <div className="flex items-center justify-between px-5 py-4">
+          <span className="text-sm text-gray-600">Total Return</span>
+          <span className={`text-lg font-bold font-mono ${getColorClass(metrics.total_return, 'total_return')}`}>
             {formatPercent(metrics.total_return)}
           </span>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">Max Drawdown</span>
-          <span className={`metric-value ${getColorClass(metrics.max_drawdown, 'max_drawdown')}`}>
+        <div className="flex items-center justify-between px-5 py-4">
+          <span className="text-sm text-gray-600">Max Drawdown</span>
+          <span className={`text-lg font-bold font-mono ${getColorClass(metrics.max_drawdown, 'max_drawdown')}`}>
             {formatPercent(metrics.max_drawdown)}
           </span>
         </div>
-        <div className="metric-item">
-          <span className="metric-label">Sharpe Ratio</span>
-          <span className={`metric-value ${getColorClass(metrics.sharpe_ratio, 'sharpe_ratio')}`}>
+        <div className="flex items-center justify-between px-5 py-4">
+          <span className="text-sm text-gray-600">Sharpe Ratio</span>
+          <span className={`text-lg font-bold font-mono ${getColorClass(metrics.sharpe_ratio, 'sharpe_ratio')}`}>
             {metrics.sharpe_ratio.toFixed(2)}
           </span>
         </div>
-        {metrics.num_trades && (
-          <div className="metric-item">
-            <span className="metric-label">Number of Trades</span>
-            <span className="metric-value">{metrics.num_trades}</span>
+        {metrics.num_trades != null && (
+          <div className="flex items-center justify-between px-5 py-4">
+            <span className="text-sm text-gray-600">Number of Trades</span>
+            <span className="text-lg font-bold font-mono text-gray-900">
+              {metrics.num_trades}
+            </span>
           </div>
         )}
       </div>
