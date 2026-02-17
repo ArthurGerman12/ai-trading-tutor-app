@@ -51,7 +51,7 @@ sleep 3
 # Start frontend
 echo ""
 echo "🎨 Starting Frontend Server (React)..."
-cd frontend
+cd frontend-ts
 
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then

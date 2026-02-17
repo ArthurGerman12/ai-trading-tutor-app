@@ -54,7 +54,7 @@ timeout /t 3 /nobreak >nul
 REM Start frontend
 echo.
 echo 🎨 Starting Frontend Server (React)...
-cd frontend
+cd frontend-ts
 
 REM Install dependencies if needed
 if not exist "node_modules" (
