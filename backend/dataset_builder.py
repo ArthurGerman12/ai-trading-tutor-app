@@ -57,7 +57,7 @@ def add_features(df):
     # -------------------------
     # Volatility
     # -------------------------
-    df["atr"] = df["Close"].rolling(14).std()
+    df["atr"] = df["Close"].rolling(14).std() / df["Close"]
     df["volatility_20d"] = df["Close"].pct_change().rolling(20).std()
 
     # -------------------------

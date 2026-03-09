@@ -1,34 +1,36 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Trade, TradeExplanation } from '../types/api';
+import { IndexedTrade, TradeExplanation } from '../types/api';
 import { API_BASE_URL } from '../constants';
 import { ChevronDownIcon, ChevronUpIcon, LightbulbIcon } from './Icons';
 
 interface TradesListProps {
-  trades: Trade[];
+  trades: IndexedTrade[];
   onSelectTrade: (index: number) => void;
   selectedTrade: number | null;
+  strategy: string;
+  symbol: string;
 }
 
-const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selectedTrade }) => {
+const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selectedTrade, strategy, symbol }) => {
   const [expandedTrade, setExpandedTrade] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [loadingExplanation, setLoadingExplanation] = useState<boolean>(false);
 
-  const handleExplainClick = async (index: number) => {
-    if (expandedTrade === index) {
+  const handleExplainClick = async (originalIndex: number) => {
+    if (expandedTrade === originalIndex) {
       setExpandedTrade(null);
       setExplanation(null);
       return;
     }
 
-    setExpandedTrade(index);
+    setExpandedTrade(originalIndex);
     setLoadingExplanation(true);
-    onSelectTrade(index);
+    onSelectTrade(originalIndex);
 
     try {
       const response = await axios.get<TradeExplanation>(
-        `${API_BASE_URL}/api/trades/${index}/explain`
+        `${API_BASE_URL}/api/trades/${originalIndex}/explain?strategy=${strategy}&symbol=${symbol}`
       );
       setExplanation(response.data.explanation);
     } catch (err) {
@@ -55,19 +57,19 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-          {trades.map((trade, index) => (
-            <React.Fragment key={index}>
+          {trades.map(({ originalIndex, trade }) => (
+            <React.Fragment key={originalIndex}>
               <tr
                 className={`${
                   trade.pnl > 0
                     ? 'bg-green-50 hover:bg-green-100'
                     : 'bg-red-50 hover:bg-red-100'
                 } transition-colors cursor-pointer ${
-                  selectedTrade === index ? 'ring-2 ring-blue-400 ring-inset' : ''
+                  selectedTrade === originalIndex ? 'ring-2 ring-blue-400 ring-inset' : ''
                 }`}
-                onClick={() => handleExplainClick(index)}
+                onClick={() => handleExplainClick(originalIndex)}
               >
-                <td className="px-4 py-3 text-sm text-gray-500 font-mono">{index + 1}</td>
+                <td className="px-4 py-3 text-sm text-gray-500 font-mono">{originalIndex + 1}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{new Date(trade.entry_date).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{new Date(trade.exit_date).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-sm text-gray-700 font-mono">${trade.entry_price.toFixed(2)}</td>
@@ -81,16 +83,16 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
                 <td className="px-4 py-3">
                   <button
                     className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      expandedTrade === index
+                      expandedTrade === originalIndex
                         ? 'bg-gray-500 text-white hover:bg-gray-600'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleExplainClick(index);
+                      handleExplainClick(originalIndex);
                     }}
                   >
-                    {expandedTrade === index ? (
+                    {expandedTrade === originalIndex ? (
                       <>
                         <ChevronUpIcon className="w-4 h-4" />
                         Hide
@@ -105,7 +107,7 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
                 </td>
               </tr>
 
-              {expandedTrade === index && (
+              {expandedTrade === originalIndex && (
                 <tr>
                   <td colSpan={8} className="p-0">
                     <div className="animate-slide-down bg-blue-50 border-2 border-blue-200 rounded-xl mx-2 mb-2 p-5">
@@ -138,7 +140,7 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
                               </span>
                             </div>
                           </div>
-                          <div className="text-sm text-gray-700 leading-relaxed bg-white rounded-lg p-4 border-l-4 border-blue-600">
+                          <div className="text-sm text-gray-700 leading-relaxed bg-white rounded-lg p-4 border-l-4 border-blue-600 whitespace-pre-line">
                             {explanation}
                           </div>
                         </div>

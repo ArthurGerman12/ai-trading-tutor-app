@@ -56,7 +56,9 @@ const App: React.FC = () => {
 
   const fetchTradeExplanation = async (tradeIndex: number): Promise<void> => {
     try {
-      const response = await axios.get<TradeExplanation>(`${API_BASE_URL}/api/trades/${tradeIndex}/explain`);
+      const response = await axios.get<TradeExplanation>(
+        `${API_BASE_URL}/api/trades/${tradeIndex}/explain?strategy=${strategyType}&symbol=${stockSymbol}`
+      );
       setTradeExplanation(response.data);
       setSelectedTrade(tradeIndex);
     } catch (err) {

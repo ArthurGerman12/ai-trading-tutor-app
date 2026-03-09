@@ -10,7 +10,7 @@ import json
 # Import your existing modules
 import sys
 sys.path.append('..')
-from dataset_builder import build_dataset
+from dataset_builder import build_dataset, load_market_data
 from train_trend_model import train_trend_model, FEATURE_COLUMNS
 from backtest_strategy import (
     backtest_strategy,
@@ -38,6 +38,7 @@ app.add_middleware(
 # Cache for model and results
 _cached_model = None
 _cached_backtest_results = None
+_price_cache = {}  # Cache for price data keyed by symbol
 
 
 class BacktestResponse(BaseModel):
@@ -185,11 +186,10 @@ def get_backtest_results(strategy: str = "conservative", symbol: str = "SPY"):
     
 
 @app.get("/api/trades/{trade_index}/explain")
-def explain_specific_trade(trade_index: int):
+def explain_specific_trade(trade_index: int, strategy: str = "conservative", symbol: str = "SPY"):
     """Get AI explanation for a specific trade"""
     try:
-        # Use conservative strategy by default for explanations
-        results, trades = backtest_strategy(strategy_type="conservative")
+        results, trades = backtest_strategy(strategy_type=strategy, symbol=symbol)
         
         if trade_index < 0 or trade_index >= len(trades):
             raise HTTPException(status_code=404, detail="Trade not found")
@@ -289,6 +289,34 @@ def get_dataset_preview(rows: int = 10):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Dataset preview failed: {str(e)}")
+
+
+@app.get("/api/price-data")
+def get_price_data(symbol: str = "SPY", start: str = "", end: str = ""):
+    """Get daily close prices for a date range (used for trade charts)"""
+    try:
+        # Use cache to avoid re-downloading on every explain click
+        if symbol not in _price_cache:
+            _price_cache[symbol] = load_market_data(symbol)
+
+        df = _price_cache[symbol].copy()
+
+        if start:
+            df = df[df.index >= start]
+        if end:
+            df = df[df.index <= end]
+
+        prices = []
+        for date, row in df.iterrows():
+            prices.append({
+                "date": serialize_timestamp(date).split("T")[0],
+                "close": float(row["Close"])
+            })
+
+        return {"prices": prices, "symbol": symbol}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Price data failed: {str(e)}")
 
 
 if __name__ == "__main__":

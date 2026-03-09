@@ -9,6 +9,13 @@ import {
   AlertIcon,
   LightbulbIcon,
   CurrencyIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ScaleIcon,
+  BrainIcon,
+  TargetIcon,
+  SignalIcon,
+  HourglassIcon,
 } from './Icons';
 
 interface TutorialProps {
@@ -64,10 +71,10 @@ const FEATURES = [
 /* ── Pipeline stages ── */
 
 const PIPELINE = [
-  { label: '9 Features', sub: 'Raw market data', icon: '📊' },
-  { label: 'StandardScaler', sub: 'Normalize values', icon: '⚖️' },
-  { label: 'Logistic Regression', sub: 'Binary classifier', icon: '🧠' },
-  { label: 'Probability', sub: '0 – 100% bullish', icon: '🎯' },
+  { label: '9 Features', sub: 'Raw market data', icon: ChartIcon },
+  { label: 'StandardScaler', sub: 'Normalize values', icon: ScaleIcon },
+  { label: 'Logistic Regression', sub: 'Binary classifier', icon: BrainIcon },
+  { label: 'Probability', sub: '0 – 100% bullish', icon: TargetIcon },
 ];
 
 /* ── Strategy data ── */
@@ -81,10 +88,10 @@ const STRATEGIES = [
 /* ── Timeline steps ── */
 
 const TRADE_STEPS = [
-  { step: 1, title: 'Signal', desc: 'Model outputs a bullish probability above the strategy threshold', icon: '📡' },
-  { step: 2, title: 'Entry', desc: 'Buy the stock/ETF at the current market price', icon: '🟢' },
-  { step: 3, title: 'Hold', desc: 'Wait N days based on the chosen strategy\'s hold period', icon: '⏳' },
-  { step: 4, title: 'Exit', desc: 'Sell the position and calculate profit or loss', icon: '🔴' },
+  { step: 1, title: 'Signal', desc: 'Model outputs a bullish probability above the strategy threshold', icon: SignalIcon },
+  { step: 2, title: 'Entry', desc: 'Buy the stock/ETF at the current market price', icon: CheckCircleIcon },
+  { step: 3, title: 'Hold', desc: 'Wait N days based on the chosen strategy\'s hold period', icon: HourglassIcon },
+  { step: 4, title: 'Exit', desc: 'Sell the position and calculate profit or loss', icon: XCircleIcon },
 ];
 
 /* ═══════════════════════════ COMPONENT ═══════════════════════════ */
@@ -259,7 +266,7 @@ const Tutorial: React.FC<TutorialProps> = ({ onClose }) => {
                     transition={{ duration: 0.5 }}
                     className="flex flex-col items-center bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 w-full md:w-44 text-center"
                   >
-                    <span className="text-3xl mb-3">{stage.icon}</span>
+                    <stage.icon className="w-8 h-8 text-blue-400 mb-3" />
                     <h3 className="text-white font-bold text-sm mb-1">{stage.label}</h3>
                     <p className="text-xs text-slate-400">{stage.sub}</p>
                   </motion.div>
@@ -413,7 +420,7 @@ const Tutorial: React.FC<TutorialProps> = ({ onClose }) => {
 
                     {/* Card */}
                     <div className={`ml-14 md:ml-0 md:w-[calc(50%-2rem)] ${i % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8'} bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5`}>
-                      <span className="text-2xl mb-2 block">{step.icon}</span>
+                      <step.icon className="w-7 h-7 text-blue-400 mb-2" />
                       <h3 className="text-white font-bold text-lg mb-1">
                         Step {step.step}: {step.title}
                       </h3>

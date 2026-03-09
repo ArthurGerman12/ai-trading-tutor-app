@@ -71,3 +71,20 @@ export interface FeatureImportanceResponse {
 export type TabType = 'overview' | 'trades' | 'features' | 'education';
 
 export type StrategyType = 'conservative' | 'aggressive' | 'ultra';
+
+export interface IndexedTrade {
+  originalIndex: number;
+  trade: Trade;
+}
+
+export interface PricePoint {
+  date: string;
+  close: number;
+}
+
+export interface PriceDataResponse {
+  prices: PricePoint[];
+  symbol: string;
+}
+
+export type TradeFilter = 'all' | 'best' | 'worst';
