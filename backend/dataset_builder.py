@@ -98,7 +98,8 @@ def add_targets(df: pd.DataFrame) -> pd.DataFrame:
     df["target_volatility"] = pd.qcut(
         df["future_volatility"],
         q=3,
-        labels=["low", "medium", "high"]
+        labels=["low", "medium", "high"],
+        duplicates="drop"
     )
 
     return df
@@ -112,14 +113,17 @@ def build_dataset(symbol="SPY"):
     """
     # Load primary stock data
     primary = load_market_data(symbol)
-    # Load SPY as benchmark for comparison
-    spy = load_market_data("SPY")
 
-    # Align by date
-    df = primary.join(
-        spy["Close"].rename("SPY_Close"),
-        how="inner"
-    )
+    # Load SPY as benchmark for relative strength comparison
+    if symbol.upper() == "SPY":
+        df = primary.copy()
+        df["SPY_Close"] = df["Close"]
+    else:
+        spy = load_market_data("SPY")
+        df = primary.join(
+            spy["Close"].rename("SPY_Close"),
+            how="inner"
+        )
 
     # Add engineered features
     df = add_features(df)

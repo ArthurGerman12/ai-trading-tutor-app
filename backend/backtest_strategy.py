@@ -59,8 +59,8 @@ def backtest_strategy(strategy_type="conservative", symbol="SPY"):
     
     df = build_dataset(symbol)
     trades = []
-    # Train model (trained only on past)
-    model = train_trend_model(symbol)
+    # Train model (trained only on past) — pass df to avoid re-downloading
+    model = train_trend_model(symbol, df=df)
 
     # Use test period only
     test_df = df[df.index >= "2020-01-01"].copy()

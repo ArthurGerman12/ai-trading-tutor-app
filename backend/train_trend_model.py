@@ -23,14 +23,16 @@ FEATURE_COLUMNS = [
 TARGET_COLUMN = "target_trend"
 
 
-def train_trend_model(symbol="SPY"):
+def train_trend_model(symbol="SPY", df=None):
     """
     Train trend prediction model for any stock
-    
+
     Args:
         symbol: Stock ticker (default: SPY)
+        df: Pre-built dataset (optional, avoids redundant yfinance downloads)
     """
-    df = build_dataset(symbol)
+    if df is None:
+        df = build_dataset(symbol)
 
     # Time-based split
     train_df = df[df.index < "2020-01-01"]

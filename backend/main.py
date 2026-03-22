@@ -50,7 +50,7 @@ class BacktestResponse(BaseModel):
     feature_comparison: Dict[str, Dict[str, float]]
     max_drawdown_explanation: str
     buy_hold_metrics: Dict[str, float]
-    strategy_type: str  # Add this field
+    strategy_type: str
 
 
 class TradeExplanation(BaseModel):
@@ -173,7 +173,7 @@ def get_backtest_results(strategy: str = "conservative", symbol: str = "SPY"):
                 "sharpe_ratio": float(buy_hold_sharpe)
             },
             "strategy_type": strategy,
-            "symbol": symbol  # Add symbol to response
+            "symbol": symbol
         }
         
         return response
