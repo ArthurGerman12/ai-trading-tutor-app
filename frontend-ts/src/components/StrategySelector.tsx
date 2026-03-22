@@ -43,7 +43,7 @@ const StrategySelector: React.FC<StrategySelectorProps> = ({
   };
 
   return (
-    <section className="bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 rounded-2xl p-6 mb-8">
+    <section className="bg-gradient-to-r from-gray-100 to-gray-200 border-2 border-gray-300 rounded-2xl p-6">
       <div className="text-center mb-5">
         <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
           <ChartIcon className="w-5 h-5" />

@@ -32,7 +32,7 @@ const StockSelector: React.FC<StockSelectorProps> = ({ stockSymbol, loading, onS
   };
 
   return (
-    <section className="bg-gradient-to-r from-indigo-100 to-purple-100 border-2 border-indigo-300 rounded-2xl p-6 mb-6">
+    <section className="bg-gradient-to-r from-indigo-100 to-purple-100 border-2 border-indigo-300 rounded-2xl p-6 mb-4">
       <div className="text-center mb-5">
         <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
           <TrendingUpIcon className="w-5 h-5" />

@@ -4,7 +4,7 @@ import { EquityPoint } from '../types/api';
 
 interface EquityCurveChartProps {
   data: EquityPoint[];
-  showBuyHold?: boolean;  // Add this prop
+  showBuyHold?: boolean;
 }
 
 const EquityCurveChart: React.FC<EquityCurveChartProps> = ({ data, showBuyHold = true }) => {

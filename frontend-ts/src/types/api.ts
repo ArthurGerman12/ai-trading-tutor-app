@@ -42,7 +42,7 @@ export interface BacktestResponse {
   max_drawdown_explanation: string;
   buy_hold_metrics: Metrics;
   strategy_type?: string;
-  symbol?: string;  // Add this
+  symbol?: string;
 }
 
 export type StockSymbol = 'SPY' | 'QQQ' | 'TSLA' | 'NVDA' | 'AMD' | 'AAPL';

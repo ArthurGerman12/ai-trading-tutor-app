@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BacktestResponse, TradeExplanation, TabType, StrategyType, StockSymbol } from './types/api';
-import { API_BASE_URL } from './constants';
-import { AlertIcon } from './components/Icons';
+import { BacktestResponse, TabType, StrategyType, StockSymbol } from './types/api';
+import { API_BASE_URL, STOCK_OPTIONS, STRATEGY_PARAMS, STRATEGY_ICONS, STRATEGY_COLORS } from './constants';
+import { AlertIcon, ChartIcon } from './components/Icons';
+import { StockIcon } from './components/StockIcons';
 import Header from './components/Header';
 import TabNavigation from './components/TabNavigation';
-import StockSelector from './components/StockSelector';
-import StrategySelector from './components/StrategySelector';
+import ControlBar from './components/ControlBar';
 import OverviewTab from './components/OverviewTab';
 import TradesTab from './components/TradesTab';
 import FeaturesTab from './components/FeaturesTab';
@@ -19,8 +19,6 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [selectedTrade, setSelectedTrade] = useState<number | null>(null);
-  const [tradeExplanation, setTradeExplanation] = useState<TradeExplanation | null>(null);
   const [strategyType, setStrategyType] = useState<StrategyType>('conservative');
   const [stockSymbol, setStockSymbol] = useState<StockSymbol>('SPY');
   const [showBuyHold, setShowBuyHold] = useState<boolean>(true);
@@ -30,6 +28,9 @@ const App: React.FC = () => {
     strategy: StrategyType = strategyType,
     symbol: StockSymbol = stockSymbol
   ): Promise<void> => {
+    // Update state immediately so the loading screen shows the correct values
+    setStrategyType(strategy);
+    setStockSymbol(symbol);
     setLoading(true);
     setError(null);
     try {
@@ -37,8 +38,6 @@ const App: React.FC = () => {
         `${API_BASE_URL}/api/backtest?strategy=${strategy}&symbol=${symbol}`
       );
       setBacktestData(response.data);
-      setStrategyType(strategy);
-      setStockSymbol(symbol);
     } catch (err) {
       setError((err as Error).message || 'Failed to fetch backtest data');
     } finally {
@@ -54,30 +53,108 @@ const App: React.FC = () => {
     fetchBacktest(strategyType, newSymbol);
   };
 
-  const fetchTradeExplanation = async (tradeIndex: number): Promise<void> => {
-    try {
-      const response = await axios.get<TradeExplanation>(
-        `${API_BASE_URL}/api/trades/${tradeIndex}/explain?strategy=${strategyType}&symbol=${stockSymbol}`
-      );
-      setTradeExplanation(response.data);
-      setSelectedTrade(tradeIndex);
-    } catch (err) {
-      console.error('Failed to fetch trade explanation:', err);
-    }
-  };
-
   useEffect(() => {
     fetchBacktest();
   }, []);
 
   if (loading) {
+    const StratIcon = STRATEGY_ICONS[strategyType];
+    const stratColor = STRATEGY_COLORS[strategyType];
+    const stockInfo = STOCK_OPTIONS.find(s => s.symbol === stockSymbol);
+    const params = STRATEGY_PARAMS[strategyType];
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-12 flex flex-col items-center justify-center min-h-[400px]">
-            <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
-            <p className="mt-6 text-xl text-gray-700 font-medium">Running {strategyType} backtest on {stockSymbol}...</p>
-            <p className="mt-2 text-sm text-gray-500">This may take 30-60 seconds</p>
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[480px] relative">
+            {/* Decorative background shapes */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-50 rounded-full opacity-60" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-purple-50 rounded-full opacity-60" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full opacity-30" />
+            </div>
+
+            <div className="relative flex flex-col items-center justify-center py-16 px-8">
+              {/* Animated chart icon with pulsing ring */}
+              <div className="relative mb-8">
+                <div className="absolute inset-0 rounded-full bg-indigo-100 animate-ping opacity-20" style={{ animationDuration: '2s' }} />
+                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <ChartIcon className="w-10 h-10 text-white" />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Running Backtest</h2>
+              <p className="text-sm text-gray-500 mb-8">Analyzing historical data and generating signals</p>
+
+              {/* Stock & Strategy badges */}
+              <div className="flex items-center gap-3 mb-8">
+                {/* Stock badge */}
+                <div className="flex items-center gap-2.5 px-4 py-2.5 bg-gray-50 rounded-xl ring-1 ring-gray-200">
+                  <StockIcon symbol={stockSymbol} className="w-7 h-7" />
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{stockSymbol}</p>
+                    <p className="text-[10px] text-gray-500">{stockInfo?.name}</p>
+                  </div>
+                </div>
+
+                {/* Animated connector */}
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-300 animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                </div>
+
+                {/* Strategy badge */}
+                <div className={`flex items-center gap-2.5 px-4 py-2.5 ${stratColor.bg} rounded-xl ring-1 ${stratColor.ring}`}>
+                  <StratIcon className={`w-5 h-5 ${stratColor.text}`} />
+                  <div>
+                    <p className={`text-sm font-bold ${stratColor.text}`}>
+                      {strategyType.charAt(0).toUpperCase() + strategyType.slice(1)}
+                    </p>
+                    <p className="text-[10px] text-gray-500">strategy</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Strategy params */}
+              <div className="flex items-center gap-3 mb-8">
+                {[
+                  { label: 'Entry', value: params.entry },
+                  { label: 'Hold', value: params.hold },
+                  { label: 'Vol Filter', value: params.vol },
+                ].map(p => (
+                  <div key={p.label} className="text-center px-3 py-1.5 bg-gray-50 rounded-lg">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">{p.label}</p>
+                    <p className="text-xs font-bold text-gray-700 font-mono">{p.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-64 mb-3">
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                    style={{
+                      animation: 'loadingBar 30s ease-out forwards',
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">This may take 30-60 seconds</p>
+
+              {/* Inline keyframes */}
+              <style>{`
+                @keyframes loadingBar {
+                  0% { width: 0%; }
+                  30% { width: 45%; }
+                  60% { width: 70%; }
+                  80% { width: 85%; }
+                  100% { width: 95%; }
+                }
+              `}</style>
+            </div>
           </div>
         </div>
       </div>
@@ -129,21 +206,17 @@ const App: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <Header onTutorialOpen={() => setShowTutorial(true)} />
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        <ControlBar
+          stockSymbol={stockSymbol}
+          strategyType={strategyType}
+          loading={loading}
+          showBuyHold={showBuyHold}
+          onStockChange={handleStockChange}
+          onStrategyChange={handleStrategyToggle}
+          onShowBuyHoldChange={setShowBuyHold}
+        />
 
         <div className="bg-white rounded-2xl shadow-xl p-8 min-h-[500px]">
-          <StockSelector
-            stockSymbol={stockSymbol}
-            loading={loading}
-            onStockChange={handleStockChange}
-          />
-          <StrategySelector
-            strategyType={strategyType}
-            loading={loading}
-            showBuyHold={showBuyHold}
-            onStrategyChange={handleStrategyToggle}
-            onShowBuyHoldChange={setShowBuyHold}
-          />
-
           {activeTab === 'overview' && (
             <OverviewTab
               backtestData={backtestData}
@@ -152,12 +225,7 @@ const App: React.FC = () => {
             />
           )}
           {activeTab === 'trades' && (
-            <TradesTab
-              backtestData={backtestData}
-              selectedTrade={selectedTrade}
-              tradeExplanation={tradeExplanation}
-              onSelectTrade={fetchTradeExplanation}
-            />
+            <TradesTab backtestData={backtestData} />
           )}
           {activeTab === 'features' && (
             <FeaturesTab backtestData={backtestData} />

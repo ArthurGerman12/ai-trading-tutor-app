@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { IndexedTrade, TradeExplanation } from '../types/api';
+import { IndexedTrade, TradeExplanation, StrategyType, StockSymbol } from '../types/api';
 import { API_BASE_URL } from '../constants';
 import { ChevronDownIcon, ChevronUpIcon, LightbulbIcon } from './Icons';
 
 interface TradesListProps {
   trades: IndexedTrade[];
-  onSelectTrade: (index: number) => void;
-  selectedTrade: number | null;
-  strategy: string;
-  symbol: string;
+  strategy: StrategyType | string;
+  symbol: StockSymbol | string;
 }
 
-const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selectedTrade, strategy, symbol }) => {
+const TradesList: React.FC<TradesListProps> = ({ trades, strategy, symbol }) => {
   const [expandedTrade, setExpandedTrade] = useState<number | null>(null);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [loadingExplanation, setLoadingExplanation] = useState<boolean>(false);
@@ -26,7 +24,6 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
 
     setExpandedTrade(originalIndex);
     setLoadingExplanation(true);
-    onSelectTrade(originalIndex);
 
     try {
       const response = await axios.get<TradeExplanation>(
@@ -65,7 +62,7 @@ const TradesList: React.FC<TradesListProps> = ({ trades, onSelectTrade, selected
                     ? 'bg-green-50 hover:bg-green-100'
                     : 'bg-red-50 hover:bg-red-100'
                 } transition-colors cursor-pointer ${
-                  selectedTrade === originalIndex ? 'ring-2 ring-blue-400 ring-inset' : ''
+                  expandedTrade === originalIndex ? 'ring-2 ring-blue-400 ring-inset' : ''
                 }`}
                 onClick={() => handleExplainClick(originalIndex)}
               >
